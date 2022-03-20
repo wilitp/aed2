@@ -25,11 +25,31 @@ char get_winner(char board[BOARD_SIZE][BOARD_SIZE])
 {
     board = board;
     char winner = '-';
-    // Checkeo la primera columna
-    if (board[0][0]==board[1][0] && board[0][0] == board[2][0] && board[0][0]=='X' || board[0][0]=='O'){
-        winner = board[0][0];
-    }
+    // Checkeo las columnas
+    for(int i=0; i<BOARD_SIZE;i++){
+	    if (board[0][i]==board[1][0] && board[0][i] == board[2][i] && (board[0][i]=='X' || board[0][i]=='O')){
+		winner = board[0][0];
+		break;
+	    }
+    } 
 
+    // Checkeo las filas
+    for(int i=0; i<BOARD_SIZE;i++){
+	    if (board[i][0]==board[i][1] && board[i][0] == board[i][2] && (board[i][0]=='X' || board[i][0]=='O')){
+		winner = board[0][0];
+		break;
+	    }
+    } 
+
+    // Checkeo las diagonales principal y secundaria
+    // Principal
+    if(board[0][0]==board[1][1] && board[0][0] == board[2][2] && (board[1][1]=='X' || board[1][1]=='O')){
+	    winner=board[1][1];
+    }
+    // Secundaria
+    if(board[0][2]==board[1][1] && board[0][2] == board[2][0] && (board[1][1]=='X' || board[1][1]=='O')){
+	    winner=board[1][1];
+    }
     return winner;
 }
 
@@ -50,7 +70,6 @@ bool has_free_cell(char board[BOARD_SIZE][BOARD_SIZE])
 
 int main(void)
 {
-    printf("TicTacToe [InCoMpLeTo :'(]\n");
 
     char board[BOARD_SIZE][BOARD_SIZE] = {
         { '-', '-', '-' },
@@ -61,8 +80,6 @@ int main(void)
     char turn = 'X';
     char winner = '-';
     int cell = 0;
-    printf("%d\n", has_free_cell(board));
-    return 0;
     // Si todavia no hay ganador y quedan espacios libres, seguimos jugando
     while (winner == '-' && has_free_cell(board)) {
         print_board(board);
