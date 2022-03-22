@@ -1,7 +1,7 @@
-EJS = $(wildcard lab*/*.c)
+EJS = $(wildcard lab*/**/*.c)
 OUTPUT = $(patsubst %.c, %.output, $(EJS))
 CC=gcc
-CFLAGS = -std=c99 -Wall -Wextra -g
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -g
 
 all: clean $(OUTPUT)
 	@echo $(EJS)
@@ -11,5 +11,5 @@ all: clean $(OUTPUT)
 	$(CC) $(CFLAGS) -o $@ $(subst .output,.c,$@)
 
 clean:
-	@rm -f **/*.output
+	@rm -f lab*/**/*.output
 

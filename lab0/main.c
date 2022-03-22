@@ -13,7 +13,7 @@ struct max_min_result compute_max_min(int array[], unsigned int length);
 // Implementacion
 struct max_min_result compute_max_min(int array[], unsigned int length)
 {
-    int i = 1;
+    unsigned int i = 1;
     int min;
     int max;
     int maxi;
