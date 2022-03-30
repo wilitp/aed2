@@ -11,6 +11,8 @@ static void insert(int a[], unsigned int i) {
   for(unsigned int j=i; 0<j; j--) {
     if(goes_before(a[j], a[j-1])) {
       swap(a, j, j-1);
+    } else {
+      break;
     }
   }
 }
