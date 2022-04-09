@@ -81,11 +81,11 @@ int main(int argc, char *argv[]) {
     reset_comparisons_counter();
     reset_swaps_counter();
     set_current_time();
-    // Restore original array
-    array_copy(array, copy, length);
+    // Restore copy
+    array_copy(copy, array, length);
 
     // Sort it with insertion sort
-    insertion_sort(array, length);
+    insertion_sort(copy, length);
 
     /* show statistics for selection_sort */
     printf("statistics for insertion_sort\n");
@@ -98,11 +98,11 @@ int main(int argc, char *argv[]) {
     reset_comparisons_counter();
     reset_swaps_counter();
     set_current_time();
-    // Restore original array
-    array_copy(array, copy, length);
+    // Restore copy
+    array_copy(copy, array, length);
 
     // Sort it with insertion sort
-    quick_sort(array, length);
+    quick_sort(copy, length);
 
     /* show statistics for selection_sort */
     printf("statistics for quick_sort\n");
