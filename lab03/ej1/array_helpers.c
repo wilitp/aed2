@@ -22,6 +22,33 @@ static bool is_last_line(unsigned int year, unsigned int month, unsigned int day
     return  year == YEARS - 1u && month == december && day == DAYS - 1u;
 }
 
+void dump_year_month_array(t_month a[YEARS]) {
+
+  // Months map
+  char* months[MONTHS] = {
+    "january", 
+    "february", 
+    "march", 
+    "april", 
+    "may", 
+    "june", 
+    "july", 
+    "august", 
+    "september", 
+    "october", 
+    "november", 
+    "december"
+  };
+  for(unsigned int year=0; year<YEARS; ++year) {
+    printf("%d: %s\n", year+FST_YEAR, months[a[year]]);
+  }
+}
+
+void dump_year_temp_array(int a[YEARS]) {
+  for(unsigned int year=0; year<YEARS; ++year) {
+    printf("%d: %u\n", year+FST_YEAR, a[year]);
+  }
+}
 
 void array_dump(WeatherTable a) {
     for (unsigned int year = 0u; year < YEARS; ++year) {

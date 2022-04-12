@@ -10,6 +10,7 @@
 
 /* Then, this project's includes, alphabetically ordered */
 #include "array_helpers.h"
+#include "weather_utils.h"
 
 /**
  * @brief print usage help
@@ -70,7 +71,27 @@ int main(int argc, char *argv[]) {
     /* parse the file to fill the array and obtain the actual length */
     array_from_file(array, filepath);
 
+    /* show absolute minimum, month of max rainfall per year and max temperature per year */
+
+    int maxes[YEARS];
+    int absolute_min_temp;
+    t_month max_rainfalls[YEARS];
+
+    /* get stats */
+    max_per_year(array, maxes);
+    month_of_max_rainfall_per_year(array, max_rainfalls);
+    absolute_min_temp = min_min_temp(array);
+
+    printf("1) La temp minima absoluta es: %d\n", absolute_min_temp);
+
+    printf("2) Listado de temperatura maxima por anio: \n");
+    dump_year_temp_array(maxes);
+
+    printf("3) Listado de mes de maxima precipitacion por anio:\n");
+    dump_year_month_array(max_rainfalls);
+
     /* show the ordered array in the screen */
+    printf("Los datos tal cual en el archivo de entrada\n");
     array_dump(array);
 
     return (EXIT_SUCCESS);

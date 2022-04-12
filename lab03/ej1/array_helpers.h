@@ -28,6 +28,18 @@ typedef Weather WeatherTable [YEARS][MONTHS][DAYS];
  */
 void array_dump(WeatherTable a);
 
+/**
+ * @brief Write the content of the array 'a' into stdout.
+ * @param[in] a array to dump in stdout
+ */
+void dump_year_month_array(t_month a[YEARS]);
+
+/**
+ * @brief Write the content of the array 'a' into stdout.
+ * @param[in] a array to dump in stdout
+ */
+void dump_year_temp_array(int a[YEARS]);
+
 
 /**
  * @brief reads an array of weather information from file
