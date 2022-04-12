@@ -22,7 +22,7 @@ int main(void) {
     int a[] = {0, 1, 2, 3};
 
     /* Completar aquí:
-       Al finalizar la ejecución las variables deben tener los siguientes valores
+       Al finalizar la ejecución, las variables deben tener los siguientes valores:
        x = 9
        m = (100, F)
        a[1] = 42
@@ -33,6 +33,24 @@ int main(void) {
        - Se pueden declarar hasta 2 punteros.
        AYUDA: podes usar GDB para consultares valores de variables y la dirección de memoria donde estan alojadas.
     */
+
+    int *xp = NULL;
+    person_t *pp = NULL;
+
+    // Uso xp para asignarle a x 
+    xp = &x;
+    *xp = 9;
+
+    // Uso xp para asignarle a a[1]
+    xp = &a[1];
+    *xp = 42;
+
+    // Uso pp para asignarle a m(tambien podria usar un puntero para el nombre y xp para la edad,
+    // seguirian siendo dos en total)
+    
+    pp = &m;
+    (*pp).age = 100; // equivalente a (*pp).age = 100;
+    pp->name_initial = 'F';
 
     printf("x = %d\n", x);
     printf("m = (%d, %c)\n", m.age, m.name_initial);
