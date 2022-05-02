@@ -1,0 +1,177 @@
+1) Implementar Stack of T usando List of T como su representacion interna.
+type Stack of T := List of T
+
+# constructors
+
+fun empty_stack() ret s : Stack of T
+  s := empy_list();
+endfun
+
+proc push(in/out s : Stack of T, in e : T)
+  addl(s, e)
+endproc
+
+# operations
+
+fun top(s : Stack of T) ret t : T
+  t := head(s)
+endfun
+
+proc pop(in/out s : Stack of T)
+  drop(s, 1) 
+endproc
+
+fun stack_is_empty(s : Stack of T) ret b : Bool
+  b := list_is_empty(s)
+endfun
+
+# destroy
+
+proc destroy(in/out s : Stack of T)
+  destroy(s) 
+endproc
+
+2) Implementar Stack of T usando pointer of (Node of T) como su representacion interna. Tenemos que Node of T es:
+
+type Node of T = tuple
+                   next : pointer (Node of T)
+                   elem : T
+
+
+type Stack of T = pointer of (Node of T)
+
+# constructors
+
+fun empty_stack() ret s : Stack of T
+  s := null
+endfun
+
+proc push(in/out s : Stack of T, in e : T)
+  var p : pointer of (Node of T);
+  alloc(p);
+  p->elem := e;
+  p->next := s;
+  s := p;
+endproc
+
+# operations
+
+fun top(s : Stack of T) ret t : T
+  t := s->elem
+endfun
+
+proc pop(in/out s : Stack of T)
+  var r : pointer of (Node of T);
+  r := s;
+  s := s->next;
+  free(r)
+endproc
+
+fun stack_is_empty(s : Stack of T) ret b : Bool
+  b := s = null;
+endfun
+
+# destroy
+
+proc destroy(in/out s : Stack of T)
+  var i : pointer of (Node of T);
+  var j : pointer of (Node of T);
+  i := s;
+  while i != null do
+    j := i;
+    i := i->next;
+    free(j)
+  od
+endproc
+
+3. (a) Implementá el TAD Cola utilizando la siguiente representación, donde N es una constante de tipo nat:
+implement Queue of T where
+
+type Queue of T = tuple
+                    elems : array[0..N-1] of T
+                    size : nat
+                  end tuple
+
+# constructors
+
+fun empty_queue() ret q : Queue of T
+  q.size = 0;
+endfun
+
+{- PRE: q.size < N}
+proc enqueue(in/out q : Queue of T, in e : T)
+  q.elems[q.size] := e;
+  q.size := q.size + 1;
+endproc 
+
+# operations
+
+fun q_is_empty(q : Queue of T) ret b
+  b := q.size = 0 
+endfun
+
+fun first(q : Queue of T) ret t : T
+  t = q.elems[0]
+endfun
+
+{- PRE: not q_is_empty(q) -}
+proc dequeue(in/out q : Queue of T)
+  for i:=0 to q.size-2 do
+    q.elems[i] := q.elems[i+1]
+  od
+  q.size := q.size-1
+endproc
+
+# destroy
+
+proc destroy(in/out q : Queue of T)
+  skip;
+endproc
+
+(b) Implementá el TAD Cola utilizando un arreglo como en el inciso anterior, 
+pero asegurando que todas las operaciones estén implementadas en orden constante.
+
+- Ayuda1: Quizás convenga agregar algún campo más a la tupla. ¿Estamos obligados a que el
+primer elemento de la cola esté representado con el primer elemento del arreglo?
+- Ayuda2: Buscar en Google aritmética modular.
+
+type Queue of T = tuple
+                    elems : array[0..N-1] of T
+                    first : nat
+                    size : nat
+                  end tuple
+
+# constructors
+
+fun empty_queue() ret q : Queue of T
+  q.size = 0;
+  q.size = 0;
+endfun
+
+{- PRE: q.size < N}
+proc enqueue(in/out q : Queue of T, in e : T)
+  q.elems[(q.first+q.size) % N] := e;
+  q.size := q.size + 1;
+endproc 
+
+# operations
+
+fun q_is_empty(q : Queue of T) ret b
+  b := q.size = 0 
+endfun
+
+fun first(q : Queue of T) ret t : T
+  t = q.elems[q.first]
+endfun
+
+{- PRE: not q_is_empty(q) -}
+proc dequeue(in/out q : Queue of T)
+  q.size := q.size-1
+  q.first := (q.first+1) % N
+endproc
+
+# destroy
+
+proc destroy(in/out q : Queue of T)
+  skip;
+endproc
