@@ -20,5 +20,7 @@ Flight flight_from_file(FILE* file, char code)
       exit(EXIT_FAILURE);
     }
 
+    flight.hour--;
+
     return flight;
 }

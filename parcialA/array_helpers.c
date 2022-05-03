@@ -21,7 +21,7 @@ void array_dump(LayoverTable a) {
   for (unsigned int hour = 0u; hour < HOURS; ++hour) {
     for (unsigned int type = 0u; type < TYPE; ++type) {
       Flight f = a[hour][type];
-      fprintf(stdout, "%c: %s at %u:00 with %u passengers", f.code, f.type == 0 ? "arrives" : "departs", f.hour - 1, f.passengers_amount);
+      fprintf(stdout, "%c: %s at %u:00 with %u passengers", f.code, f.type == 0 ? "arrives" : "departs", f.hour+1, f.passengers_amount);
       if (!is_last_line(hour, type))
       {
         fprintf(stdout, "\n");
@@ -31,17 +31,10 @@ void array_dump(LayoverTable a) {
 }
 
 unsigned int passengers_amount_in_airport (LayoverTable a, unsigned int h) {
-  unsigned int sum = 0;
-
-  for(unsigned int i=0; i<HOURS; i++) {
-    // If it's a previous hour, we add the passengers who arrived
-    if(i+1 < h) {
-      sum += a[i][arrival].passengers_amount;
-    }
-    // If it's the current hour, we add the passengers who arrived AND the ones about to leave
-    else if(i+1 == h) {
-      sum += a[i][arrival].passengers_amount;
-      sum += a[i][departure].passengers_amount;
+  unsigned int sum;
+  for(unsigned int i=0u; i<HOURS; i++) {
+    if(a[i][1].hour == h) {
+      sum = a[i][1].passengers_amount;
     }
   }
 
