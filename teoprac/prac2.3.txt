@@ -175,3 +175,218 @@ endproc
 proc destroy(in/out q : Queue of T)
   skip;
 endproc
+
+
+# 4
+-- Tipos dados
+type Direction = enumerate
+                    Left
+                    Right
+
+type Path = List of Direction
+
+-- Resolucion del ej
+implement Tree of T where
+
+type Node of T = tuple
+                   left: pointer to (Node of T)
+                   value: T
+                   right: pointer to (Node of T)
+                 end tuple
+
+type Tree of T = pointer to (Node of T)
+
+# constructors 
+
+fun empty_tree() ret t : Tree of T
+  {- crea una arbol vacio -}
+  t = null;
+endfun
+
+fun node (tl : Tree of T, e : T, tr : Tree of T) ret t : Tree of T
+  alloc(t);
+  t->value := e;
+  t->left := tl;
+  t->right := tr;
+endfun
+
+# operations
+
+fun is_empty_tree(t : Tree of T) ret b : Bool
+  b := t = null;
+endfun
+
+fun root(t : Tree of T) ret e : T
+  e := t->value;
+endfun
+
+fun left(t : Tree of T) ret tl : Tree of T
+  e := t->left;
+endfun
+
+fun right(t : Tree of T) ret tr : Tree of T
+  e := t->right;
+endfun
+
+fun height(t : Tree of T) ret n : Nat
+  if t != null then
+    n := 1 + max(height(t->left), height(t->right));
+  else
+    n := 0;
+endfun
+
+
+fun is_path(t : Tree of T, p : Path) ret b : Bool
+  b := true;
+  var d : Direction;
+  while not is_empty(p) && b do
+    d = head(p);
+    if(d = Left && t->left = null) then b := false;
+    if(d = Right && t->right = null) then b := false;
+    tail(d)
+  od
+endfun
+
+fun subtree_at(t : Tree of T, p : Path) ret t0 : Tree of T
+  {- Asumiendo que is_path(t, p) -}
+  t0 := t;
+  while not is_empty(Path) do
+    if(head(p) = Left) then t0 := t0->left;
+    if(head(p) = Right) then t0 := t0->right;
+    tail(p)
+  od
+endfun
+
+fun elem_at(t : Tree of T, p : Path) ret e : T
+  e = root(subtree_at(t, p));
+endfun
+
+# 5 Implementar un diccionario usando tuplas (Key, Value)
+
+a)
+spec Dict of (K, V) where
+constructors
+
+fun emptyDict() ret d : Dict of (K, V);
+
+proc setKey(in/out d : Dict of (K, V), in key : K, in value : V);
+
+operations
+
+fun isEmptyDict(d : Dict of (K, V)) ret b : Bool;
+
+fun hasAttr(d : Dict of (K, V)) ret b : Bool;
+
+fun getAttr(d : Dict of (K, V)) ret v : V;
+
+proc deleteAttr(in/out d : Dict of (k, V), in k : K);
+
+fun keys(d : Dict of (K, V));
+
+destroy
+proc destroy(in/out d : Dict of (k, V))
+
+implement Dict of (K, V) where 
+
+type DictNode of (K, V) = tuple
+                  key   : K
+                  value : V
+                  left  : pointer to DictNode of (K, V)
+                  left  : pointer to DictNode of (K, v)
+                endtuple
+
+type Dict of (K, V) = pointer to DictNode
+
+fun emptyDict() ret d : Dict of (K, V)
+  d := null;
+endfun
+
+-- Version recursiva
+proc setKey(in/out dict : Dict of (K, V), in k : K, in v : V)
+  {- Dict es un arbol binario de busqueda si tenemos en cuenta las key de los nodos -}
+
+  if d = null then
+    alloc(n);
+    d->left := null;
+    d->right := null;
+    d->key := k;
+    d->v := v;
+  else if(k < d->key)
+    setKey(d->left, k, v);
+  else if(k > d->key)
+    setKey(d->right, k, v);
+  else
+    d->value := v;
+endproc
+
+-- Version iterativa
+proc setKey(in/out dict : Dict of (K, V), in k : K, in v : V)
+  {- Dict es un arbol binario de busqueda si tenemos en cuenta las key de los nodos -}
+  var n : DictNode of (K, V);
+  n := d;
+  var set : Bool;
+  set := false;
+
+  while not set do
+    if d = null then
+      alloc(n);
+      n->left := null;
+      n->right := null;
+      n->key := k;
+      n->v := v;
+      set := true;
+    else if(k < d->key)
+      n := n->left
+    else if(k > d->key)
+      n := n->right
+    else
+      n->value := v;
+      set := true;
+  od
+endproc
+
+fun isEmptyDict(d : Dict of (K, V)) ret b : Bool
+  b := d = null;
+endfun
+
+fun hasAttr(d : Dict of (K, V), k : K) ret b : Bool
+  b := false;
+  if(d != null)
+    if(k = d->key)
+      b := true;
+    if(k < d->key)
+      b := hasAttr(d->left, k);
+    if(k > d->key)
+      b := hasAttr(d->right, k);
+endfun
+
+fun getAttr(d : Dict of (K, V), k : K) ret v : V
+  if(d != null)
+    if(k = d->key)
+      v := d->value;
+    if(k < d->key)
+      v := getAttr(d->left, k);
+    if(k > d->key)
+      v := getAttr(d->right, k);
+endfun
+
+proc findParent(in/out d : Dict of (K, V))
+
+// Forma que trata de reusar la mayor cantidad de memoria posible
+proc deleteAttr(in/out d : Dict of (K, V), in k : K)
+  // Primero encontrar(o no) desde el parent, el nodo que tiene la key
+  // Después "borrar" ese nodo por medio de:
+  //  - Guardar sus dos subárboles en dos variables
+  //  - Hacer free a el puntero de ese nodo
+  //  - Dejar en null el puntero que lo apuntaba
+  //  - Agregar todos los elementos(capaz usando setKey) de los subárboles al árbol original
+endfun
+
+// Forma simple pero que reescribe todos los nodos
+proc deleteAttr(in/out d : Dict of (K, V), in k : K)
+  var res : 
+  if(d != null) then
+    d->left
+endfun
+
+fun keys(d : Dict of (K, V));

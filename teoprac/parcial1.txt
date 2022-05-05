@@ -13,27 +13,31 @@ proc cocktail_select(in a : array[1..N] of T, out (imin, imax) : nat, in (lft, r
 
 endproc
 
+proc cocktail_select(in a : array[1..N] of T, out (imin, imax) : nat, in (lft, rgt) : nat)
+
+  imin := lft;
+  imax := lft;
+
+  for i:=lft+1 to rgt do
+    if(a[i] > a[imax]) then
+      imax := i;
+    if(a[i] < a[imax]) then
+      imin := i;
+  od
+
+endproc
+
 {- T ordenable -}
 proc cocktail_sort(in a : array[1..N] of T)
   var imin, imax, i, j : nat;
   i := 1;
   j := N;
-  while (j-i+1) > 1 do
+  while (i<j) do
     cocktail_select(a, imin, imax, i, j);
-
-    if(imin = imax) then skip;
-
-    if(imin != j && imax != i) then
-      swap(a, imax, j);
-      swap(a, imin, i);
-
-    else if(imin = j) then
-      swap(a, imin, i);
-      swap(a, imax, j);
-      
-    else if(imax = i) then
-      swap(a, imax, j);
-      swap(a, imin, i);
+    swap(a, imin, i);
+    if(imax = i) then
+      imax = imin
+    swap(a, imax, j);
 
     i := i+1;
     j := j+1;
