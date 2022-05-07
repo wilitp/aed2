@@ -4,7 +4,7 @@ type Stack of T := List of T
 # constructors
 
 fun empty_stack() ret s : Stack of T
-  s := empy_list();
+  s := empty_list();
 endfun
 
 proc push(in/out s : Stack of T, in e : T)
@@ -372,21 +372,125 @@ endfun
 
 proc findParent(in/out d : Dict of (K, V))
 
+proc _addNode(in/out d : Dict of (K, V), in nk : pointer to DictNode of (K, V))
+  {- Se asume que no hay un nodo con la misma key -}
+  if nk != null then
+    // Desenlazamos los nodos hijos
+    nk->left := null;
+    nk->right := null;
+    // Variable para iterar entre los nodos del target
+    var i : pointer to DictNode of (K, V);
+    i := d;
+     
+    // Recorrer el arbol y parar cuando se encuentra un lugar para insertar el nodo
+    if(d != null) then
+      while i != null do
+        if(nk->key < i->key) then
+          if i->left = null then
+            i->left := nk;
+            i := null;
+          else
+            i := i->left;
+        else if(k >= i->key) then
+          if i->right = null then
+            i->right := nk;
+            i := null;
+          else
+            i := i->right;
+      else
+        d := nk;
+  od
+endproc
+
+proc _mergeDict(in/out target : Dict of (K, V), in/out src : Dict of (K, V))
+  var l, r : DictNode of (K, V);
+  while src != null do
+    // Guardo las ramas, ya que addNode las borra del nodo
+    l := src->left; 
+    r := src->right; 
+
+    // Agrego el nodo
+    addNode(target, src);
+
+    // mergeo cada rama del nodo que acabo de agregar
+    _mergeDict(target, l);
+    _mergeDict(target, r);
+  od
+endproc
+
+proc checkForKeyAndUpdateParent(in/out p, i : pointer to Node of (K, V), k)
+  if i != null then
+    if k = i->key then
+      l := i->left;
+      r := i->right;
+      free(i);
+      i := null;
+      _mergeDict(p, l);
+      _mergeDict(p, r);
+    else if k < i->key then
+      p := i;
+endproc
+
 // Forma que trata de reusar la mayor cantidad de memoria posible
 proc deleteAttr(in/out d : Dict of (K, V), in k : K)
-  // Primero encontrar(o no) desde el parent, el nodo que tiene la key
-  // Después "borrar" ese nodo por medio de:
-  //  - Guardar sus dos subárboles en dos variables
-  //  - Hacer free a el puntero de ese nodo
-  //  - Dejar en null el puntero que lo apuntaba
-  //  - Agregar todos los elementos(capaz usando setKey) de los subárboles al árbol original
-endfun
-
-// Forma simple pero que reescribe todos los nodos
-proc deleteAttr(in/out d : Dict of (K, V), in k : K)
-  var res : 
+  var l, r : pointer to DictNode of (K, V);
   if(d != null) then
-    d->left
+    // Si root tiene la key, entonces borramos el nodo y mergeamos los subarboles
+    if d->key = k then
+      l := d->left;
+      r := d->right;
+      free(d);
+      d = null;
+      _mergeDict(d, l);
+      _mergeDict(d, r);
+
+    else
+      // Trackeamos al parent(p) y en base a si k es mayor o menor a su key, decidimos el i(child)
+      // Checkeamos si ese child tiene o no la key y procedemos como corresponda.
+      // Si no la tiene, p pasara a ser el child
+      var i : pointer to DictNode of (K, V);
+      p := d;
+      i := d;
+      while i != null:
+        { INV: k != p->key}
+        if k < p->key then
+          i := p->left;
+          checkForKeyAndUpdateParent(p, i, k);
+        if k > p->key then
+          i := p->right;
+          checkForKeyAndUpdateParent(p, i, k);
+endproc
+
+proc _addKeysRec(dn : pointer to DictNode of (K, V), ks : List of K)
+  if(dn != null)
+    addl(ks, dn->key);
+    _addKeyRec(dn->left, ks);
+    _addKeyRec(dn->right, ks);
+endproc
+
+fun keys(d : Dict of (K, V)) ret ks : List of K
+  ks := empty_list();
+  _addKeysRec(d, ks);
 endfun
 
-fun keys(d : Dict of (K, V));
+# 6 Decir cuales de estas secuencias no es posible en una busqueda binaria al buscar 363:
+
+(a) 2, 252, 401, 398, 330, 344, 397, 363. -> Todo bien
+(b) 924, 220, 911, 244, 898, 258, 362, 363. -> Todo bien
+(c) 925, 202, 911, 240, 912, 245, 363. -> Esta mal, ya que los subarboles debajo de 240 no pueden tener numeros mayores a 911(Y encontramos un 912).
+(d) 2, 399, 387, 219, 266, 382, 381, 278, 363. -> Todo bien
+(e) 935, 278, 347, 621, 299, 392, 358, 363. -> Todo lo que esté a la derecha de 347 debe de ser mas grande, pero nos encontramos un 299
+
+# Dar dos secuencias de incersion que nos den el siguiente arbol binario:
+
+            22
+      10          35
+    6     19   25      52
+  4     15        33  49 53
+     11  18
+
+una secuencia sería
+22, 10, 6, 4, 19, 15, 11, 18, 35, 25, 52, 33, 52, 49, 53
+
+otra posible en la que solo cambiamos el orden en el que agregamos dos hojas
+22, 10, 6, 4, 19, 15, 11, 18, 35, 25, 52, 33, 52, 53, 49
