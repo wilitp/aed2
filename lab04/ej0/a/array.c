@@ -20,9 +20,8 @@ int main(void) {
     printf("before: ");
     print_array(array, ARRAY_SIZE);
     /* --------------------- Modificar ---------------------- */
-    for (unsigned int i=0u; i < ARRAY_SIZE; i++) {
-        p = array + i;
-        *p = 0;
+    for (p=array; p < array+ARRAY_SIZE; p++) {
+        p[0] = 0;
     }
     /* ------------------------------------------------------ */
     printf("after : ");
