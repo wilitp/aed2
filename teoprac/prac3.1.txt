@@ -1,0 +1,106 @@
+Dado el siguiente caso:
+4*b > a
+4*b - a < b
+4*b - a + 1 > 4
+b no divide a a
+
+a b 1
+
+al correr el algoritmo para dar un importe de 4*b tenemos:
+
+resto = 4*b - a
+monedas = 1
+
+resto = 0
+monedas = 4*b - a + 1
+
+respuesta final: 4*b - a + 1.
+respuesta optima: 4
+
+3. 
+Las posibles partes de soluciones son "cargar" y "no cargar". La solución final sería una secuencia de "cargar" y/o "no cargar" en el mismo orden que el recorrido.
+
+Propongo elegir "cargar", siempre y cuando la autonomía necesaria para llegar a la siguiente localidad sea menor a la que nos queda. 
+Luego, la modificación al problema constaría de quitar el primer elemento.
+
+Ya que cada vez que elegimos "cargar", cargaríamos el total de la capacidad del tanque, vamos a estar minimizando la cantidad de cargas. Esto se debe a que cargamos solo cuando es estríctamente necesario.
+
+A es la autonomía del auto.
+fun nafta(ds : array[1..N] of nat) : ret cs : array[1..N] of bool
+  var i : nat;
+  i := 1;
+  var resto := 0
+
+  while i <= N do
+    if resto < ds[i] then
+      cs[i] := true;
+      resto := A - ds[i];
+    else
+      resto := resto - ds[i];
+  od
+endfun
+
+4.
+Las posibles partes de la solucion son las ballenas, y el problema son las ballenas que están vivas al momento de elegir.
+
+Si tenemos las ballenas b1,..., bn están ordenadas por la cantidad de tiempo que les queda de vida, es claro que la ballena a elegir es la primera(en orden) que siga con vida, 
+ya que esto minimiza la cantidad de ballenas que morirán durante el tiempo que tardo en llevar a esa ballena.
+
+Propongo el algoritmo:
+
+{- PRE: vs está ordenado crecientemente -}
+T es la cantidad de tiempo que requiere salvar a una ballena
+fun ballenas(vs : List of nat) : ret cs : List of nat
+  var l : nat;
+  var i : nat;
+  l := length(vs);
+  var transcurrido := 0
+
+  for i:=0 to l-1 do
+    if(index(vs, i) > transcurrido) then
+      addr(cs, i);
+      transcurrido := transcurrido + T;
+  od
+endfun
+
+5.
+
+Propongo elegir al primer amigo cuyo viaje se superponga con la menor cantidad de amigos que al mismo tiempo no se superponga con los que ya hemos elegido.
+
+V1 se superpone a V2 si:
+
+V1.partida < V2.partida && V1.salida > V2.salida
+ó
+V1.partida < V2.llegada
+ó
+V1.llegada > V2.partida
+
+Nuestro algoritmo buscaría al amigo con el que menos se interpongan los viajes y que a su vez no se superponga a ningún viaje ya elegido. De esta manera maximizamos la cantidad de amigos que puedan usar el teléfono.
+Una vez que las opciones restantes sean nulas o ya ninguna sea válida, entonces terminamos.
+
+* Un mejor criterio de selección es buscar el que llegue antes, es fácil ver que si V1 llegó antes, entonces es imposible que se cumplan:
+
+V1.partida < V2.partida && V1.salida > V2.salida
+o
+V1.llegada > V2.partida
+
+para todo V2
+
+De esa forma solo queda el caso
+
+V1.llegada > V2.partida
+
+Más gráficamente:
+
+V1: [   ]
+V2:   [    ]
+
+o bien
+
+V1: [   ]
+V2:   [ ]
+
+Sea s = {S1..Sn} los viajes que se solapan con V1(de la única forma que nos es posible que se solapen), es fácil ver que Sr se solapa con St, para todo par (r,t) en [1,n]. Por lo tanto elegir a V1 descartaría a todo s. Pero también tenemos que al elegir a cualquier viaje en s estaríamos descartando V1 y todo s. Pero elegir a V1 tiene una ventaja, y esa es que todos los viajes que no se solapen con V1 quedan sin descartar, pero podrían ser descartados de elegir algún viaje en s.
+Concluyo entonces que elegir al que antes vuelve minimiza los viajes que descarto, y por ende maximiza los viajes que elijo.
+
+
