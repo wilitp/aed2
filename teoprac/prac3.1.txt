@@ -103,4 +103,137 @@ V2:   [ ]
 Sea s = {S1..Sn} los viajes que se solapan con V1(de la única forma que nos es posible que se solapen), es fácil ver que Sr se solapa con St, para todo par (r,t) en [1,n]. Por lo tanto elegir a V1 descartaría a todo s. Pero también tenemos que al elegir a cualquier viaje en s estaríamos descartando V1 y todo s. Pero elegir a V1 tiene una ventaja, y esa es que todos los viajes que no se solapen con V1 quedan sin descartar, pero podrían ser descartados de elegir algún viaje en s.
 Concluyo entonces que elegir al que antes vuelve minimiza los viajes que descarto, y por ende maximiza los viajes que elijo.
 
+# 6
+Para obtener las mejores facturas y medialunas, es fundamental abrir el horno el menor número de veces posible. 
+Por supuesto que no siempre es fácil ya que no hay que sacar nada del horno demasiado temprano, porque queda cruda la masa, ni demasiado tarde, porque se quema.
 
+En el horno se encuentran n piezas de panadería (facturas, medialunas, etc). Cada pieza i que se encuentra en el horno tiene un tiempo mínimo necesario de cocción t_i y un tiempo máximo admisible de cocción T_i. Si se la extrae del horno antes de t_i quedará cruda y si se la extrae después de T_i se quemará.
+Asumiendo que abrir el horno y extraer piezas de él no insume tiempo, y que t_i <= T_I para todo i en {1,...,n} ¿Qué criterio utilizaría un algoritmo voraz para extrar todas las piezas del horno en perfecto estado (ni crudas ni quemadas), abriendo el horno el menor número de veces posible? Implementarlo.
+
+Doy por hecho que en un instante dado, la operación de abrir el horno de por sí ya agarra todas las piezas cuyo tiempo mínimo sea menor al transcurrido y su tiempo máximo sea mayor.
+Lo que queda por computar entonces es en qué momentos se va a abrir el horno, o solo llevar la cuenta de la cantidad.
+*Obs: esto es muy parecido al del teléfono, solo que en este caso quiero buscar el "lapso" que MÁS se cruze con los otros
+Una vez que conseguimos el que se cruza con más lapsos, borramos ese y todos los que se cruza de la estructura en la que los tengamos y aumentamos en 1 el contador
+
+
+Posibles criterios:
+1. El de más duración.
+2. El de menos duración.
+3. El que antes esté sacable.
+4. El que después esté sacable.
+5. El que antes se queme.
+6. El que después se queme.
+7. El que esté contenido por más lapsos(contenido: tener principio y fin por adentro del principio y fin del "contenedor")
+
+Posibles masajeos:
+1. Generar una estructura con los "cruces" entre los lapsos, quizas se podría repetir este mismo proceso con los nuevos lapsos(cruces) encontrados hasta ya no encontrar más. El cardinal del último resultado es nuestra respuesta 
+
+Ejemplo:
+Lapsos válidos de cada pieza
+
+1              -------------
+2  --------
+3         ------
+4                          ---------------------
+
+Computo los cruces, sin agregar duplicados
+1              -            
+2                          -
+
+Computo los cruces otra vez:
+(Vacío)
+
+Dejo de iterar y uso el cardinal de la última lista de cruces. Respuesta: 2
+Alternativamente podría devolver una lista de los momentos en los que abriría el horno, esto se puede conseguir usando los principios de cada lapso del último conjunto no vacío.
+
+La siguiente implementación funciona pero no es la idea del ej, después está el algoritmo correcto
+Implementación
+
+type Lapse = tuple 
+               min : nat
+               max : nat
+             endtuple
+
+
+{Dados los tiempos minimos y maximos de cocción de cada masa, devuelve una lista de los momentos(en la misma unidad que los datos recibidos) en los que abrir el horno}
+fun horno(pieces : List of Lapse) ret s : List of nat
+  var curr : List of Lapse;
+  curr := copy(pieces);
+  next := curr;
+  while not emtpy(next) do
+    next := overlaps(curr);
+    if not empty(next) then
+      curr := next;
+  od
+
+  s := mins(curr);
+endfun
+
+fun mins(lapses : list of Lapse) ret ms : List of nat
+  var lps : List of Lapse;
+  lps := copy(lapses);
+  while not empty(lps) do
+    addl(ms, head(lps));
+    tail(lps);
+  od
+endfun
+
+{Devuelve una lista de todos los cruces entre los lapsos, sin duplicarlos}
+fun overlaps(lapses : list of Lapse) ret ovls : List of Lapse
+  var lps : list of Lapse;
+  var curr : Lapse;
+  var lps_len : nat;
+  var ovls_len : nat;
+  lps := copy(lapses);
+  lps_len := length(lps);
+  ovls_len := 0;
+  
+  while not empty(lps) do
+    curr = head(lps);
+    tail(lps);
+    lps_len := lps_len - 1;
+    for i:=0 to lps_len-1 do
+      var li, ov : Lapse;
+      li := index(lps, i);
+      if curr.max >= li.min then
+        ov.min = li.min;
+        ov.max = curr.max;
+      else if curr.min <= li.max then
+        ov.min = curr.max;
+        ov.max = li.min;
+      else if curr.min >= li.min and li.max <= curr.max then
+        ov.min = li.min;
+        ov.max = li.max;
+      else if li.min >= curr.min and curr.max <= li.max then
+        ov.min = curr.min;
+        ov.max = curr.max;
+      if not has(ovls, ov) then
+        ovls_len := ovls_len + 1;
+        addl(ovls, ov);
+    od
+
+  od
+endfun
+
+Otra opción más simple es elegir al que antes se queme, con eso descartar a todos los que incluyan ese momento(el T_i) del elegido.
+
+1         -------------
+2  --------
+3  ------
+4                    ---------------------
+
+En este caso primero elegimos al 3 y descartamos al 2.
+Luego elegimos al 1 y descartamos también al cuatro.
+La respuesta es 2.
+
+El algoritmo correcto para este ejercicio es:
+
+fun horno(pieces : Set of Lapse) ret s : Set of nat
+  var ps Set of Lapse;
+  while not empty(ps) do
+    mb := minburn(ps);
+    elim(ps, mb);
+    elim_if_includes(ps, mb.max);
+    add(s, mb.max)
+  od
+endfun
