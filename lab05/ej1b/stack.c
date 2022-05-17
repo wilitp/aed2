@@ -2,10 +2,16 @@
 #include <assert.h>
 #include "stack.h"
 
+// Representation invariant: for all elements in the stack, `index` is equal to the next element's `index` plus one
+// Representation invariant: The last element in the stack must have `index` 0
 struct _s_stack
 {
   stack_elem value;
+
   struct _s_stack *next;
+
+  // 0 based index
+  unsigned int index;
 };
 
 stack stack_empty()
@@ -25,6 +31,7 @@ stack stack_push(stack s, stack_elem e)
 {
   struct _s_stack *n = node(e);
   n->next = s;
+  n->index = s==NULL ? 0 : s->index + 1;
   return n;
 }
 
@@ -37,11 +44,7 @@ stack stack_pop(stack s)
 }
 
 unsigned int stack_size(stack s) {
-  unsigned int length = 0;
-  for (struct _s_stack *curr = s; curr != NULL; curr = curr->next) {
-    ++length;
-  }
-  return length;
+  return s->index+1;
 }
 
 stack_elem stack_top(stack s) {
