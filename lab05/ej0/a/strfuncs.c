@@ -18,18 +18,17 @@ size_t string_length(const char *str) {
 
 char *string_filter(const char *str, char c) {
     size_t unfiltered_length = string_length(str);
-    char aux[unfiltered_length];
+    char *filtered = malloc(unfiltered_length+1);
     size_t j = 0;
+
     for(unsigned int i=0; i<=unfiltered_length; i++) {
         if(str[i]!=c) {
-            aux[j] = str[i];
+            filtered[j] = str[i];
             j++;
         }
     }
-    char *filtered = malloc(j+1);
 
-    for(unsigned int i=0; i<=unfiltered_length; i++) {
-        filtered[i] = aux[i];
-    }
+    filtered = realloc(filtered, sizeof(char)*j);
+
     return filtered;
 }
