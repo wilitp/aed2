@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+
 #include "stack.h"
 
 struct _s_stack
@@ -21,14 +23,15 @@ stack stack_empty()
 stack stack_push(stack s, stack_elem e)
 {
   assert(s != NULL);
+  assert(s->cap >= s->len);
   // Reservar memoria si es necesario
-  if(s->cap <= s->len) {
-    size_t newcap = s->len == 0 ? 1*sizeof(stack_elem) : 2*s->len*sizeof(stack_elem);
-    s->elems = realloc(s->elems, newcap);
+  if(s->cap == s->len) {
+    size_t newcap = s->len == 0 ? 1 : 2*s->len;
+    s->elems = realloc(s->elems, newcap*sizeof(stack_elem));
     s->cap = newcap;
   }
-  s->elems[s->len] = e;
-  ++s->len;
+  (s->elems)[s->len] = e;
+  ++(s->len);
 
   return s;
 }
