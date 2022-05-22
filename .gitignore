@@ -1,3 +1,5 @@
 **.output
 **.gz
 **.ccls-cache
+
+**/.gdb_*
