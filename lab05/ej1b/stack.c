@@ -59,21 +59,19 @@ stack_elem *stack_to_array(stack s) {
   int slen = stack_size(s);
   stack_elem *arr = malloc(slen*sizeof(struct _s_stack));
   for(int i=slen-1; 0<=i;--i) {
-    arr[i] = stack_top(s);
-    s = stack_pop(s);
+    arr[i] = s->value;
+    s = s->next;
   }
 
   return arr;
-
 }
 
 stack stack_destroy(stack s) {
-  struct _s_stack *curr;
-  struct _s_stack *to_free;
-  for(curr=s;curr != NULL; curr = curr->next) {
-    to_free = curr;
-    free(to_free);
+  struct _s_stack *p;
+  while(s!=NULL) {
+    p = s;
+    s = s->next;
+    free(p);
   }
-
-  return curr;
+  return s;
 }

@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
-// #include <string.h>
+#include <string.h>
 
 // Esto ya andaria:
-// char *string_clone(const char *str) {
-//     char *clone=NULL;
-//     clone = malloc(strlen(str)+1);
-//     strcpy(clone, str);
-//     return clone;
-// }
+/* char *string_clone(const char *str) { */
+/*     char *clone=NULL; */
+/*     clone = malloc(strlen(str)+1); */
+/*     strcpy(clone, str); */
+/*     return clone; */
+/* } */
 
 // Pero asi copias un string sin necesidad de usar string.h
 char *string_clone(const char *str) {

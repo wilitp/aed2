@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra -pedantic -std=c99 -g
-SOURCES = stack.c hanoi.c main.c
+SOURCES = ../ej2/stack.c hanoi.c main.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = solve-hanoi
 

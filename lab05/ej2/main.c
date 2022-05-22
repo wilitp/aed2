@@ -54,5 +54,6 @@ int main(int argc, char *argv[]) {
     array_dump(arr, length);
     printf("Reversed");
     array_dump(revarr, length);
+    free(revarr);
     stack_destroy(s);
 }

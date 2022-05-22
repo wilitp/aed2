@@ -49,6 +49,7 @@ int main(void) {
     copy = string_clone(original, sizeof(original) - 1);
     printf("Original: %s\n", original);
     printf("Copia   : %s\n", copy);
+    free(copy);
 
 
     return EXIT_SUCCESS;

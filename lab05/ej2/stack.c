@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "stack.h"
 
@@ -39,7 +40,7 @@ stack stack_push(stack s, stack_elem e)
 stack stack_pop(stack s)
 {
   assert(s != NULL);
-  --s->len;
+  --(s->len);
   return s;
 }
 
@@ -53,7 +54,8 @@ stack_elem stack_top(stack s)
 {
   assert(s != NULL);
   assert(s->len > 0);
-  return s->elems[s->len-1];
+  assert(s->elems != NULL);
+  return s->elems[(s->len)-1];
 }
 
 bool stack_is_empty(stack s)
@@ -65,7 +67,12 @@ bool stack_is_empty(stack s)
 stack_elem *stack_to_array(stack s)
 {
   assert(s != NULL);
-  return s->elems;
+  stack_elem *arr = NULL;
+  if(s->len) {
+    arr = calloc(s->len, sizeof(stack_elem));
+    arr = memcpy(arr, s->elems, s->len*sizeof(stack_elem));
+  }
+  return arr;
 }
 
 stack stack_destroy(stack s)
