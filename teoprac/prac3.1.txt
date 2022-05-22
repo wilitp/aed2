@@ -237,3 +237,41 @@ fun horno(pieces : Set of Lapse) ret s : Set of nat
     add(s, mb.max)
   od
 endfun
+
+# 7
+Un submarino averiado descansa en el fondo del océano con n sobrevivientes en su interior. Se conocen las
+cantidades c1, . . . , cn de oxígeno que cada uno de ellos consume por minuto. El rescate de sobrevivientes
+se puede realizar de a uno por vez, y cada operación de rescate lleva t minutos.
+
+a) Escribir un algoritmo que determine el orden en que deben rescatarse los sobrevivientes para salvar al mayor número posible de ellos antes de que se agote el total de C oxígeno. 
+
+b) Modificar la solución anterior suponiendo que por cada operación de rescate se puede llevar a la superficie a m sobrevivientes. m<=n
+
+Como criterio de selección, elijo salvar primero al que más oxígeno consume, ya que esto aumentará la cantidad de oxígeno disponible y prolongará el tiempo para rescatar a los sobrevivientes.
+
+fun submarino(sobs : List of Sob) ret ord : List of string
+  ord = list_empty();
+  var length : nat;
+  var gordo : Sob;
+  length = list_length(sobs);
+  while not is_empty(sobs) do
+    gordo := get_gordo(sobs);
+    elim_gordo(sobs, gordo);
+    addr(ord, gordo.name);
+  od
+endfun
+
+Asumo que existe una función que consigue al sobreviviente de mayor consumo y que existe un procedimiento para borrar a una persona de la lista por nombre.
+
+# 8
+
+Usted vive en la montaña, es invierno, y hace mucho frío. Son las 10 de la noche. Tiene una voraz estufa
+a leña y n troncos de distintas clases de madera. Todos los troncos son del mismo tamaño y en la estufa
+entra solo uno por vez. Cada tronco i es capaz de irradiar una temperatura ki mientras se quema, y
+dura una cantidad ti de minutos encendido dentro de la estufa. Se requiere encontrar el orden en que
+se utilizarían la menor cantidad posible de troncos a quemar entre las 22 y las 12 hs del día siguiente,
+asegurando que entre las 22 y las 6 la estufa irradie constantemente una temperatura no menor a K1; y
+entre las 6 y las 12, una temperatura no menor a K2.
+
+Desde las 22 a las 6, elijo el tronco que más tiempo queme de entre los que irradian una temperatura mayor a K1. Desde las 6 a las 12, elijo con el mismo criterio pero de entre los troncos que irradian una temperatura mayor a K2.
+
