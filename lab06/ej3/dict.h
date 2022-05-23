@@ -18,31 +18,31 @@ dict_t dict_empty(void);
  * POS: {dict --> dict_t /\ dict_length(dict) == 0}
  */
 
-dict_t dict_add(dict_t dict, key_t word, value_t def);
+dict_t dict_add(dict_t dict, key_ty word, value_t def);
 /* Adds a [word] and its definition [def] in the dictionary.
  * If [word] is already in the dictionary, its definition is replaced by [def].
  *
- * PRE: {dict --> dict_t /\ word --> key_t /\ def --> value_t}
+ * PRE: {dict --> dict_t /\ word --> key_ty /\ def --> value_t}
  *  dict = dict_add(dict, word, def);
  * POS: {dict --> dict_t /\ key_eq(def, dict_search(dict, word))}
  */
 
-value_t dict_search(dict_t dict, key_t word);
+value_t dict_search(dict_t dict, key_ty word);
 /* Returns the definition of the given [word], or NULL if [word] is not in
  * the dictionary.
  *
  * Note: Returns a reference to the value_t owned by the dictionary (not a copy).
  *
- * PRE: {dict --> dict_t /\ word --> key_t}
+ * PRE: {dict --> dict_t /\ word --> key_ty}
  *   def = dict_search(dict, word);
  * POS: {(def != NULL) == dict_exists(dict, word)}
  */
 
-bool dict_exists(dict_t dict, key_t word);
+bool dict_exists(dict_t dict, key_ty word);
 /* Returns true if the given word exists in the dictionary, and false
  * otherwise.
  *
- * PRE: {dict --> dict_t /\ word --> key_t}
+ * PRE: {dict --> dict_t /\ word --> key_ty}
  *   b = dict_exists(dict, word);
  * POS: {dict --> dict_t}
  */
@@ -55,12 +55,12 @@ unsigned int dict_length(dict_t dict);
  *
  */
 
-dict_t dict_remove(dict_t dict, key_t word);
+dict_t dict_remove(dict_t dict, key_ty word);
 /* Removes the given word from the dictionary. If
  * [word] is not in the dictionary, it does nothing and
  * returns the dict unchanged.
  *
- * PRE: {dict --> dict_t /\ word --> key_t}
+ * PRE: {dict --> dict_t /\ word --> key_ty}
  *  dict = dict_remove(dict, word);
  * POS: {dict --> dict_t /\ !dict_exists(dict, word)}
  *

@@ -34,6 +34,8 @@ dict_t dict_from_file(string filename) {
                     string str_word = string_create(word);
                     string str_def = string_create(def);
                     result = dict_add(result, str_word, str_def);
+                    str_word = string_destroy(str_word);
+                    str_def = string_destroy(str_def);
                 }
             }
             free(line);

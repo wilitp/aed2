@@ -6,8 +6,8 @@
 #include "string.h"
 
 /* Key and value, both of type string */
-typedef string key_t;
 typedef string value_t;
+typedef string key_ty;
 
 /* Rename operations */
 #define key_destroy string_destroy

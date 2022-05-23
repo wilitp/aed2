@@ -82,12 +82,13 @@ dict_t on_add(dict_t current) {
     word = get_input("Please enter the word to add into the dict");
     if (dict_exists(current, word)) {
         printf(RESULT_PREFIX "The word is already in the dict.\n");
-        word = string_destroy(word);
     } else {
         definition = get_input("Please enter the definition");
         current = dict_add(current, word, definition);
         printf(RESULT_PREFIX "The word and definition were added.\n");
+        definition = string_destroy(definition);
     }
+    word = string_destroy(word);
     return (current);
 }
 
@@ -97,12 +98,13 @@ dict_t on_replace(dict_t current) {
     word = get_input("Please enter the word to replace in the dict");
     if (!dict_exists(current, word)) {
         printf(RESULT_PREFIX "The word does not exist in the dict.\n");
-        word = string_destroy(word);
     } else {
         definition = get_input("Please enter the new definition");
         current = dict_add(current, word, definition);
         printf(RESULT_PREFIX "The definition was replaced.\n");
+        definition = string_destroy(definition);
     }
+    word = string_destroy(word);
     return (current);
 }
 
@@ -159,6 +161,7 @@ void on_search(dict_t current) {
                string_ref(word), string_ref(definition));
     }
     word = string_destroy(word);
+    definition = string_destroy(definition);
 }
 
 void on_size(dict_t current) {
@@ -173,31 +176,31 @@ int main(void) {
         option = print_menu();
         switch (option) {
             case ADD:
-
+                current = on_add(current);
                 break;
             case REMOVE:
-
+                current = on_remove(current);
                 break;
             case REPLACE:
-
+                current = on_replace(current);
                 break;
             case DUMP:
-
+                on_dump(current);
                 break;
             case EMPTY:
-
+                current = on_empty(current);
                 break;
             case LOAD:
-
+                current = on_load(current);
                 break;
             case SEARCH:
-
+                on_search(current);
                 break;
             case SHOW:
-
+                dict_dump(current, stdout);
                 break;
             case SIZE:
-
+                on_size(current);
                 break;
             case QUIT:
                 current = dict_destroy(current);
