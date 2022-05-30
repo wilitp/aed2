@@ -83,10 +83,18 @@ unsigned int abb_length(abb tree) {
     return length;
 }
 
+static struct _s_abb *node_destroy(struct _s_abb *node) {
+      if(node != NULL) {
+        free(node);
+        node = NULL;
+      }
+      return node;
+}
+
 abb abb_remove(abb tree, abb_elem e) {
     assert(invrep(tree));
     // Referencia al puntero que enlaza al nodo a borrar
-    struct _s_abb **ref;
+    struct _s_abb **ref = NULL;
     // Referencia al puntero que enlaza al nodo que reemplazara al borrado
     struct _s_abb **refrepl;
     // Variable auxiliar para las busquedas
@@ -95,12 +103,12 @@ abb abb_remove(abb tree, abb_elem e) {
     
     if(tree != NULL) {
       curr = tree;
-      /* Busco el elemento a borrar y una referencia al puntero que lo enlaza a su padre */
+      /* Busco el elemento a borrar y una referencia al puntero que lo enlaza */
       while(keepLooking) {
         if(e < curr->elem) {
           ref = &curr->left;
           curr = curr->left; 
-        } 
+        }
         else if(e > curr->elem) {
           ref = &curr->right;
           curr = curr->right; 
@@ -108,18 +116,18 @@ abb abb_remove(abb tree, abb_elem e) {
           keepLooking = false;
         }
       }
+      if(ref == NULL) {
+        ref = &tree;
+      }
 
       /* PRE: 
        * curr = elemento a borrar && 
        * ref  = referencia al puntero que apunta al lugar del elemento borrado
        */
 
-      /* Busco el minimo nodo del arbol de la derecha
-       * y libero la memoria del nodo a borrar usando la ref
-       */
+      /* Busco el minimo nodo del arbol de la derecha */
       refrepl = &curr->right;
       curr = curr->right;
-      free(*ref);
       if(curr != NULL) {
 
         while(curr->left != NULL) {
@@ -127,15 +135,27 @@ abb abb_remove(abb tree, abb_elem e) {
           curr = curr->left;
         }
         // Quitamos el reemplazo del lugar en el que esta
-        *refrepl = NULL;
+        *refrepl = curr->right;
       }
       /* PRE
        * curr = minimo nodo del arbol de la derecha 
        * */
       
-      // Ubicamos el reemplazo en el lugar del nodo borrado
+      /* Ubico el reemplazo en el lugar del nodo borrado
+       * y libero la memoria del nodo a borrar usando la ref 
+       */
+      if(curr != NULL) {
+        curr->left = (*ref)->left;
+        curr->right = (*ref)->right;
+      } 
+      else {
+        /* Si el right es nulo, entonces solo tenemos que poner el 
+         * izquierdo en el lugar del borrado.
+         * */
+        curr = (*ref)->left;
+      }
+      node_destroy(*ref);
       *ref = curr;
-
     }
     assert(invrep(tree) && !abb_exists(tree, e));
     return tree;

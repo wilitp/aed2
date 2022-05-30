@@ -109,6 +109,7 @@ static struct _node_t *node_destroy(struct _node_t *node) {
       return node;
 }
 
+// TODO: Hacer esto mas lindo usando recursion para buscar el nodo a borrar
 dict_t dict_remove(dict_t dict, key_ty word) {
     assert(invrep(dict));
     // Referencia al puntero que enlaza al nodo a borrar
@@ -165,6 +166,12 @@ dict_t dict_remove(dict_t dict, key_ty word) {
       if(curr != NULL) {
         curr->left = (*ref)->left;
         curr->right = (*ref)->right;
+      } 
+      else {
+        /* Si el right es nulo, entonces solo tenemos que poner el 
+         * izquierdo en el lugar del borrado.
+         * */
+        curr = (*ref)->left;
       }
       node_destroy(*ref);
       *ref = curr;
