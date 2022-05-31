@@ -1,0 +1,48 @@
+Ej 3
+
+3. Usted quiere irse de vacaciones y debe elegir una ciudad entre K posibles que le interesan. Como no
+dispone de mucho dinero, desea que el viaje de ida hacia la ciudad pueda realizarse con a lo sumo L litros
+de nafta.
+
+(a) Dé un algoritmo que, dado un grafo representado por una matriz E : array[1..n,1..n] of Nat, donde
+el elemento E[i,j] indica el costo en litros de nafta necesario para ir desde la ciudad i hasta la ciudad
+j; un conjunto C de vértices entre 1 y n, representando las ciudades que quieren visitarse; un vértice
+v, representando la ciudad de origen del viaje; y un natural L, indicando la cantidad de litros de
+nafta total que puede gastar; devuelva un conjunto D de aquellos vértices de C que puede visitar con
+los L litros.
+
+(b) Ejecute el algoritmo implementado en el inciso anterior para el grafo descripto en el siguiente gráfico,
+con vértices 1,2,...11, tomando C = {11,5,10,7,8} como las ciudades de interés, disponiendo de L =
+40 litros de nafta. ¿Cuáles son los posibles destinos de acuerdo a su presupuesto?
+
+a.
+
+{ PRE: todos los elementos en C están en [1, n] }
+fun DijkstraSelect(C: Set of Nat, D: array[1..n] of Nat) ret c : Nat
+  c = Inf;
+  for j in C do 
+    c = min(c, D[j]) 
+  od
+endfun
+
+fun Dijkstra(L: array[1..n,1..n] of Nat, v: Nat)
+  ret D: array[1..n] of Nat
+  var c: Nat
+  var C: Set of Nat
+  for i := 1 to n do add(C,i); D[j]:= L[v,j] od
+  while not is_empty_set(C) do
+    c:= DijkstraSelect(C, D)
+    elim(C,c)
+    for j in C do D[j]:= min(D[j],D[c]+L[c,j]) od
+  od
+end fun
+
+
+fun opciones(E: array[1..n,1..n] of Nat, v: Nat, C: Set of Nat, L : Nat) ret opciones : Set of Nat
+  var costs: array[1..n] := Dijkstra(E, v);
+  for i:=1 to n do
+    if costs[i] <= L and belongs(costs[i], C) then
+      add(opciones, i);
+  od
+endfun
+

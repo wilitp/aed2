@@ -1,0 +1,16 @@
+
+fun cambioRec(d:array[1..n] of nat, i,j: nat) ret r: List of Nat
+  if j=0 then 
+    r:=emptyList()
+  else if i = 0 then 
+    r:=zerosList(j-d[1] div min(d, 0, 1) + 1) <- Cota superior de addl(d[i], cambio(d,i,j-d[i])) si tomamos i=0
+  else if d[i] > j then 
+    r:=cambioRec(d,i-1,j)
+  else 
+    r:=minlen(cambioRec(d,i-1,j), addl(d[i], cambioRec(d,i,j-d[i])))
+fi
+end fun
+
+fun cambio(d:array[1..n] of nat, j: nat) ret r: List of Nat
+  r = cambioRec(d, n, j);
+endfun
