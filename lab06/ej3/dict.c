@@ -109,74 +109,66 @@ static struct _node_t *node_destroy(struct _node_t *node) {
       return node;
 }
 
-// TODO: Hacer esto mas lindo usando recursion para buscar el nodo a borrar
+static bool string_more(string a, string b) {
+  // "No es menor o igual"
+  return !(string_less(a,b) || string_eq(a, b) );
+}
+
 dict_t dict_remove(dict_t dict, key_ty word) {
     assert(invrep(dict));
-    // Referencia al puntero que enlaza al nodo a borrar
-    struct _node_t **ref = NULL;
-    // Referencia al puntero que enlaza al nodo que reemplazara al borrado
-    struct _node_t **refrepl;
-    // Variable auxiliar para las busquedas
-    struct _node_t *curr;
-    bool keepLooking = true;
-    
+    struct _node_t *aux;
+
+    // Dict vacio
     if(dict != NULL) {
-      curr = dict;
-      /* Busco el elemento a borrar y una referencia al puntero que lo enlaza */
-      while(keepLooking) {
-        if(string_less(word, curr->key)) {
-          ref = &curr->left;
-          curr = curr->left; 
-        } 
-        else if(!string_eq(word, curr->key)) {
-          ref = &curr->right;
-          curr = curr->right; 
-        } else {
-          keepLooking = false;
-        }
+      // La key a borrar es menor
+      if(string_less(word, dict->key)){
+        // Borrar del arbol izquierdo
+        dict->left = dict_remove(dict->left, word);
       }
-      if(ref == NULL) {
-        ref = &dict;
-      }
-
-      /* PRE: 
-       * curr = elemento a borrar && 
-       * ref  = referencia al puntero que apunta al lugar del elemento borrado
-       */
-
-      /* Busco el minimo nodo del arbol de la derecha */
-      refrepl = &curr->right;
-      curr = curr->right;
-      if(curr != NULL) {
-
-        while(curr->left != NULL) {
-          refrepl = &curr->left;
-          curr = curr->left;
-        }
-        // Quitamos el reemplazo del lugar en el que esta
-        *refrepl = curr->right;
-      }
-      /* PRE
-       * curr = minimo nodo del arbol de la derecha 
-       * */
-      
-      /* Ubico el reemplazo en el lugar del nodo borrado
-       * y libero la memoria del nodo a borrar usando la ref 
-       */
-      if(curr != NULL) {
-        curr->left = (*ref)->left;
-        curr->right = (*ref)->right;
+      // La key a borrar es mayor
+      else if(string_more(word, dict->key)){
+        // Borrar del arbol derecho
+        dict->right = dict_remove(dict->right, word);
       } 
-      else {
-        /* Si el right es nulo, entonces solo tenemos que poner el 
-         * izquierdo en el lugar del borrado.
-         * */
-        curr = (*ref)->left;
+      // Estamos en la key a borrar, y el sub derecho es nulo
+      else if(dict->right == NULL) {
+        // Reemplazar por el sub izquierdo
+        aux = dict;
+        dict = dict->left;
+        node_destroy(aux);
       }
-      node_destroy(*ref);
-      *ref = curr;
+      // Estamos en la key a borrar, y el sub izquierdo es nulo
+      else if(dict->left == NULL) {
+        // Reemplazar por el sub derecho
+        aux = dict;
+        dict = dict->right;
+        node_destroy(aux);
+      }
+      else {
+        /* Dict apunta al nodo a borrar */
+        struct _node_t **refrepl; // Lugar donde esta el reemplazo
+
+        // Busco el reemplazo,
+        // elijiendo el minimo del subarbol de la derecha
+        refrepl = &dict->right;
+        while((*refrepl)->left != NULL) {
+          refrepl = &((*refrepl)->left);
+        }
+        
+        aux = (*refrepl)->right; // Guardo el arbol derecho de mi reemplazo
+        /* Asigno los subarboles del nodo por borrar al reemplazo */
+        (*refrepl)->left = (dict)->left;
+        (*refrepl)->right = (dict)->right;
+        node_destroy(dict); // Destruyo el nodo a borrar
+        dict = *refrepl; // Ubico el reemplazo
+
+        // Quitamos el reemplazo del lugar en el que esta
+        *refrepl = aux;
+      }
     }
-    assert(invrep(dict) && !dict_exists(dict, word));
+
+    assert(invrep(dict));
+    assert(!dict_exists(dict, word));
     return dict;
 }
 
