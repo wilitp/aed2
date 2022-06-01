@@ -159,9 +159,9 @@ void on_search(dict_t current) {
     } else {
         printf(RESULT_PREFIX "The definition of \"%s\" is : \"%s\"\n",
                string_ref(word), string_ref(definition));
+      definition = string_destroy(definition);
     }
     word = string_destroy(word);
-    definition = string_destroy(definition);
 }
 
 void on_size(dict_t current) {
