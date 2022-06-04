@@ -12,14 +12,10 @@ struct _s_abb {
 
 static bool invrep(abb tree) {
     return tree == NULL ||
-           // El elemento a la izquierda es valido
-           ((tree->left == NULL || tree->elem > tree->left->elem) &&
-           // El elemento a la derecha es valido
-           (tree->right == NULL || tree->elem < tree->right->elem) &&
-           // El arbol de la izquierda es valido
-           invrep(tree->left) &&
-           // El arbol de la derecha es valido
-           invrep(tree->right))
+           // El arbol a la izquierda es valido
+           ((tree->left == NULL || (tree->elem > abb_max(tree->left) && invrep(tree->left))) &&
+           // El arbol a la derecha es valido
+           (tree->right == NULL || (tree->elem < abb_min(tree->right) && invrep(tree->right))))
            ;
 }
 
