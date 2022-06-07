@@ -12,6 +12,8 @@ typedef string key_ty;
 /* Rename operations */
 #define key_destroy string_destroy
 #define key_eq string_eq
+#define key_clone string_clone
+#define value_clone string_clone
 #define value_eq string_eq
 #define key_less string_less
 #define key_dump string_dump

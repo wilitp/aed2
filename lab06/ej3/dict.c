@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "dict.h"
-#include "string.h"
 #include "key_value.h"
 
 struct _node_t {
@@ -11,16 +10,53 @@ struct _node_t {
     value_t value;
 };
 
-static bool invrep(dict_t d) {
-    return d == NULL ||
-           // El elemento a la izquierda es valido
-           ((d->left == NULL || string_less(d->left->key, d->key)) &&
-           // El elemento a la derecha es valido
-           (d->right == NULL || string_less(d->key, d->right->key) || string_eq(d->key, d->right->key) ) &&
-           // El arbol de la izquierda es valido
-           invrep(d->left) &&
-           // El arbol de la derecha es valido
-           invrep(d->right))
+static bool key_more(key_ty a, key_ty b) {
+  // "No es menor o igual"
+  return !(key_less(a,b) || key_eq(a, b) );
+}
+
+static key_ty key_max(key_ty k1, key_ty k2) {
+  return key_more(k1, k2) ? k1 : k2;
+}
+
+static key_ty key_min(key_ty k1, key_ty k2) {
+  return key_more(k1, k2) ? k1 : k2;
+}
+
+static key_ty dict_max_key(dict_t dict) {
+  assert(dict != NULL);
+  key_ty max;
+  max = dict->key;
+  if(dict->left != NULL) {
+    max = key_max(max, dict_max_key(dict->left));
+  }
+  if(dict->right != NULL) {
+    max = key_max(max, dict_max_key(dict->right));
+  }
+  
+  return max;
+}
+
+static key_ty dict_min_key(dict_t dict) {
+  assert(dict != NULL);
+  key_ty min;
+  min = dict->key;
+  if(dict->left != NULL) {
+    min = key_min(min, dict_min_key(dict->left));
+  }
+  if(dict->right != NULL) {
+    min = key_min(min, dict_min_key(dict->right));
+  }
+  
+  return min;
+}
+
+static bool invrep(dict_t dict) {
+    return dict == NULL ||
+           // El arbol a la izquierda es valido
+           ((dict->left == NULL || (key_more(dict->key, dict_max_key(dict->left)) && invrep(dict->left))) &&
+           // El arbol a la derecha es valido
+           (dict->right == NULL || (key_less(dict->key, dict_min_key(dict->right)) && invrep(dict->right))))
            ;
 }
 
@@ -41,18 +77,18 @@ dict_t dict_empty(void) {
 dict_t dict_add(dict_t dict, key_ty word, value_t def) {
     assert(invrep(dict));
     if(dict == NULL) {
-      dict = leaf_node(string_clone(word), string_clone(def));
+      dict = leaf_node(key_clone(word), value_clone(def));
     }
-    else if(string_less(word, dict->key)) {
+    else if(key_less(word, dict->key)) {
       dict->left = dict_add(dict->left, word, def);
     } 
-    else if(string_less(dict->key, word)){
+    else if(key_less(dict->key, word)){
       dict->right = dict_add(dict->right, word,def);
     } else {
-      string tmp;
+      value_t tmp;
       tmp = dict->value;
-      dict->value=string_clone(def);
-      string_destroy(tmp);
+      dict->value=value_clone(def);
+      key_destroy(tmp);
     }
 
     assert(invrep(dict));
@@ -62,15 +98,15 @@ dict_t dict_add(dict_t dict, key_ty word, value_t def) {
 
 value_t dict_search(dict_t dict, key_ty word) {
     value_t def = NULL;
-    while(dict != NULL && !string_eq(word, dict->key)) {
-      if(string_less(word, dict->key)) {
+    while(dict != NULL && !key_eq(word, dict->key)) {
+      if(key_less(word, dict->key)) {
         dict = dict->left;
       } else {
         dict = dict->right;
       }
     }
     if(dict != NULL){
-      def = string_clone(dict->value);
+      def = value_clone(dict->value);
     }
     return def;
 }
@@ -78,9 +114,9 @@ value_t dict_search(dict_t dict, key_ty word) {
 bool dict_exists(dict_t dict, key_ty word) {
     bool exists = false;
     while(!exists && dict != NULL) {
-      if(string_less(word, dict->key)) {
+      if(key_less(word, dict->key)) {
         dict = dict->left;
-      } else if(!string_eq(word, dict->key)) {
+      } else if(!key_eq(word, dict->key)) {
         dict = dict->right;
       } else {
         exists = true;
@@ -101,17 +137,12 @@ unsigned int dict_length(dict_t dict) {
 
 static struct _node_t *node_destroy(struct _node_t *node) {
       if(node != NULL) {
-        string_destroy(node->key);
-        string_destroy(node->value);
+        key_destroy(node->key);
+        key_destroy(node->value);
         free(node);
         node = NULL;
       }
       return node;
-}
-
-static bool string_more(string a, string b) {
-  // "No es menor o igual"
-  return !(string_less(a,b) || string_eq(a, b) );
 }
 
 dict_t dict_remove(dict_t dict, key_ty word) {
@@ -121,12 +152,12 @@ dict_t dict_remove(dict_t dict, key_ty word) {
     // Dict vacio
     if(dict != NULL) {
       // La key a borrar es menor
-      if(string_less(word, dict->key)){
+      if(key_less(word, dict->key)){
         // Borrar del arbol izquierdo
         dict->left = dict_remove(dict->left, word);
       }
       // La key a borrar es mayor
-      else if(string_more(word, dict->key)){
+      else if(key_more(word, dict->key)){
         // Borrar del arbol derecho
         dict->right = dict_remove(dict->right, word);
       } 
@@ -178,8 +209,8 @@ dict_t dict_remove_all(dict_t dict) {
     if(dict != NULL) {
       dict_remove_all(dict->left);
       dict_remove_all(dict->right);
-      string_destroy(dict->key);
-      string_destroy(dict->value);
+      key_destroy(dict->key);
+      key_destroy(dict->value);
       free(dict);
       dict = NULL;
     }
@@ -190,8 +221,12 @@ dict_t dict_remove_all(dict_t dict) {
 void dict_dump(dict_t dict, FILE *file) {
     assert(invrep(dict));
     if (dict != NULL) {
+        // Dump in-order
         dict_dump(dict->left, file);
-        fprintf(file, "%s: %s\n", string_ref(dict->key), string_ref(dict->value));
+        key_dump(dict->key, file);
+        fprintf(file, ": ");
+        key_dump(dict->value, file);
+        fprintf(file, "\n");
         dict_dump(dict->right, file);
     }
 }
