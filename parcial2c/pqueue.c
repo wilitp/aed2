@@ -7,12 +7,18 @@ struct s_pqueue {
     struct s_node ** elems;
     unsigned int size;
     priority_t min_priority;
+    priority_t peek_priority;
 };
 
 struct s_node {
     pqueue_elem elem;
     struct s_node *next;
 };
+
+// Returns the higher priority between the two 
+static priority_t higher_prio(priority_t a, priority_t b) {
+    return a < b ? a : b;
+}
 
 static struct s_node * create_node(pqueue_elem e) {
     struct s_node* new_node=NULL;
@@ -29,6 +35,18 @@ static struct s_node * destroy_node(struct s_node *node) {
     return node;
 }
 
+static priority_t pqueue_actual_peek_priority(pqueue q) {
+    priority_t peek_prio;
+
+    for(unsigned int i = 0; i<=q->min_priority; ++i) {
+        if(q->elems[i] != NULL) {
+            peek_prio = i;
+            break;
+        }
+    }
+
+    return peek_prio;
+}
 
 static bool invrep(pqueue q) {
     // Pqueue value shouldn't be null unless destroyed
@@ -36,8 +54,8 @@ static bool invrep(pqueue q) {
     struct s_node *curr;
 
     // Check size corresponds to the actual amount of elements
+    unsigned int actual_size = 0;
     if(valid) {
-        unsigned int actual_size = 0;
         for(unsigned int i = 0; i<=q->min_priority; ++i) {
             curr = q->elems[i];
             while(curr != NULL) {
@@ -47,6 +65,11 @@ static bool invrep(pqueue q) {
         }
         valid = actual_size == q->size;
     }
+
+    // Check that peek priority corresponds to the actual peek priority, unless the pqueue is empty
+    if(valid && actual_size > 0 ) {
+      valid = q->peek_priority == pqueue_actual_peek_priority(q);
+    }
     return valid;
 }
 
@@ -54,6 +77,8 @@ pqueue pqueue_empty(priority_t min_priority) {
     pqueue q=NULL;
     q = malloc(sizeof(struct s_pqueue));
     q->size = 0;
+    // Peek priority is initially a bigger number than any possible priority
+    q->peek_priority = min_priority+1;
     q->min_priority = min_priority;
     q->elems = malloc(sizeof(struct s_node*) * (min_priority+1));
     for(unsigned int i=0; i<=min_priority; i++) {
@@ -66,7 +91,7 @@ pqueue pqueue_empty(priority_t min_priority) {
 
 pqueue pqueue_enqueue(pqueue q, pqueue_elem e, priority_t priority) {
     assert(invrep(q));
-
+    assert(priority <= q->min_priority);
 
     struct s_node *new_node = create_node(e);
     
@@ -82,6 +107,7 @@ pqueue pqueue_enqueue(pqueue q, pqueue_elem e, priority_t priority) {
         curr->next = new_node;
     }
     ++q->size;
+    q->peek_priority = higher_prio(priority, q->peek_priority);
 
     assert(invrep(q));
     assert(!pqueue_is_empty(q));
@@ -108,16 +134,7 @@ pqueue_elem pqueue_peek(pqueue q) {
 
 priority_t pqueue_peek_priority(pqueue q) {
     assert(invrep(q) && !pqueue_is_empty(q));
-    priority_t peek_prio;
-
-    for(unsigned int i = 0; i<=q->min_priority; ++i) {
-        if(q->elems[i] != NULL) {
-            peek_prio = i;
-            break;
-        }
-    }
-
-    return peek_prio;
+    return q->peek_priority;
 }
 
 size_t pqueue_size(pqueue q) {
@@ -127,12 +144,18 @@ size_t pqueue_size(pqueue q) {
 
 pqueue pqueue_dequeue(pqueue q) {
     assert(invrep(q) && !pqueue_is_empty(q));
-    priority_t peek_prio = pqueue_peek_priority(q);
-    // Asume q->elems[peek_prio] is not NULL, given peuque_peek_priority works properly
-    struct s_node *killme = q->elems[peek_prio];
-    q->elems[peek_prio] = q->elems[peek_prio]->next;
+    priority_t peek_prio = q->peek_priority;
+    struct s_node *killme = q->elems[q->peek_priority];
+    q->elems[peek_prio] = q->elems[q->peek_priority]->next;
     destroy_node(killme);
     --q->size;
+
+    // Update peek_priority
+    // If the dequeued queue is empty, then peek_priority will be min_priority + 1
+    while(q->peek_priority<=q->min_priority && q->elems[q->peek_priority] == NULL ) { // "peek_priority is valid and it's corresponding queue is empty"
+      ++(q->peek_priority);
+    }
+
     assert(invrep(q));
     return q;
 }
